@@ -1,0 +1,12 @@
+form{
+	display: inline-block;
+}
+
+input[type=text]{
+	background-color: blue;
+	width: 20px;
+	}
+
+body{
+	background-color: blue;
+}
