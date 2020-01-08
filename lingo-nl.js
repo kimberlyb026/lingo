@@ -479,6 +479,7 @@ var words = [
 	"zever",
 	"zeeen"];
 
+	
 var input = document.getElementById('guess'); // the input box
 var button = document.getElementById('button'); // the button
 var guess;
@@ -497,21 +498,14 @@ var gameloop = function(){
   var pressn = 1; // turn number
   
   // get all indexes of a given value in an array
-  var getAllIndexes = function(arr, val) {
-    var indexes = [], i;
-    for(i = 0; i < arr.length; i++)
-        if (arr[i] === val)
-            indexes.push(i);
-    return indexes;
-  }
-  
+
   // give first letter
   document.getElementById("row1").firstElementChild.innerHTML=rand[0];
   
   // guess event
   input.onkeypress = function(event) {
     if (event.key == "Enter" || event.keyCode == 13) {
-      document.getElementById('smallMsg').innerHTML = "Green = correct letter, Yellow = wrong place"; // reset message
+      
       guess = input.value.toUpperCase();
       
       var current = "row" + pressn;
@@ -521,9 +515,9 @@ var gameloop = function(){
       
       // If not right number of letters
       if(guess.length !== 5){
-        document.getElementById('smallMsg').innerHTML = "Guesses must be 5 letters!";
+        document.getElementById('smallMsg').innerHTML = "het moet 5 letters zijn";
         if(pressn===5){
-          end("", "goede woord: " + rand);
+          end("je krijgt de volgende letter.", "Correct word: " + rand);
         }
         pressn++;
         document.getElementById(current).firstElementChild.innerHTML=rand[0];
@@ -550,7 +544,7 @@ var gameloop = function(){
             if (ind.length > 1){
               for (var j=0; j<ind.length;j++){
                 if(childDivs[ind[j]].className != "square correct" && childDivs[i].className != "square wrongplace"){
-                  changeClass(childDivs[i], 'default', 'wrongplace',);
+                  changeClass(childDivs[i], 'default', 'wrongplace');
                 } //if
               } //for
             } //if
@@ -563,10 +557,10 @@ var gameloop = function(){
         input.value = ""; // clear input box
         
         if(c===5) { // if they have all the correct letters
-          end("je hebt het woord geraden");
+          end("je krijgt de volgende letter", "");
         } //if
         else if (pressn === 5){ // if they're out of tries
-          end(".", "goede woord: " + rand);
+          end("beurt gaat naar andere kant", "Correct word: " + rand);
         } //else if
       } //for (check for correctness loop)
       pressn++; // inc number of guesses
@@ -585,7 +579,7 @@ var end = function(msg, smallmsg){
 // reset
 var playagain = function(){
   document.getElementById('msgBox').innerHTML="Guess the Word!"; // main message
-  document.getElementById('smallMsg').innerHTML = 
+  document.getElementById('smallMsg').innerHTML = "Green = correct letter, Yellow = wrong place"; // small message
   document.getElementById('guess').readOnly = false;
   changeClass(button, "visible", "visible");
   
