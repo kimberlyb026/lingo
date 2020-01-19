@@ -1,66 +1,22 @@
-
 <!DOCTYPE html>
 <html>
-<body>
-<head>
-	<link rel="stylesheet" type="text/css" href="lingo.css">
-<title>lingo</title>
-</head>
-<body> 
-	
-
-
-
-
-
-
-
-<div id='msgBox'>lingo</div>
-
-<div id="container">
-  <div id="row1">
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-  </div>
-  <div id="row2">
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-  </div>
-  <div id="row3">
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-  </div>
-  <div id="row4">
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-  </div>
-  <div id="row5">
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-    <div class="square default"></div>
-  </div>
-</div>
-<input id="guess" onkeypress="submitguess(this)" placeholder='typ je woord'>
-
-
-
- <script src="lingo-nl.js"></script>
-
-
-
-<body>
+    <head>
+        <link rel="stylesheet" type="text/css" href="data/CSS/main.css">
+        <script src="data/Wordlist/lingo-nl.js"></script>
+        <script src="data/JS/main.js"></script>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+    </head>
+    <body>
+        <form>
+            <input type="text" id="inputText"><!--
+            --><input type="submit" id="inputButton" value="Submit" onclick="game.update(document.getElementById('inputText').value); return false">     
+        </form>
+        <br>
+        <div id="guesses"></div>
+        <!-- <br>
+        <div id="correctLetters"></div> -->
+        <h1 id="timer">0</h1>
+        <script>game = new Game();</script>
+    </body>
 </html>

@@ -480,124 +480,229 @@ var words = [
 	"zeeen"];
 
 	
-var input = document.getElementById('guess'); // the input box
-var button = document.getElementById('button'); // the button
-var guess;
+var time = 10;
 
-// change css class
-var changeClass = function(cng, old, newClass){
-  cng.className = cng.className.replace(old, newClass);
-}
 
-// game loop
-var gameloop = function(){
-  // pick a random word
-  var rand = words[Math.floor(Math.random() * words.length)];
-  var hasDuplicates = (/([a-zA-Z]).*?\1/).test(rand); // if multiple insances of a letter in the word
-  
-  var pressn = 1; // turn number
-  
-  // get all indexes of a given value in an array
+class Game {
+    // Constructor:
+    constructor() {
+        console.log("Starting game");
+        document.getElementById("inputButton").removeAttribute("onclick");
+        document.getElementById("inputButton").addEventListener("click", function(event) {
+            event.preventDefault();
+            game.update(document.getElementById('inputText').value);
+        })
+        // Generate html objects
+        // All guesses object are generated here
+        this._usedHTMLObjects.guesses = document.getElementById("guesses");
+        for(var wordNumber = 0; wordNumber < 5; wordNumber++) {
+            this._usedHTMLObjects.individualGuessedLetterObjects.push([]);
+            var lineDiv = document.createElement("div");
+            lineDiv.className = "blockLine";
 
-  // give first letter
-  document.getElementById("row1").firstElementChild.innerHTML=rand[0];
-  
-  // guess event
-  input.onkeypress = function(event) {
-    if (event.key == "Enter" || event.keyCode == 13) {
-      
-      guess = input.value.toUpperCase();
-      
-      var current = "row" + pressn;
-      // current row
-      var childDivs = document.getElementById(current).getElementsByTagName('div');
-      var c = 0; // correct count
-      
-      // If not right number of letters
-      if(guess.length !== 5){
-        document.getElementById('smallMsg').innerHTML = "het moet 5 letters zijn";
-        if(pressn===5){
-          end("je krijgt de volgende letter.", "Correct word: " + rand);
+            for(var letterNumber = 0; letterNumber < 5; letterNumber++) {
+                var obj = document.createElement("p");
+                obj.className = "block";
+                obj.innerHTML = "_";
+                this._usedHTMLObjects.individualGuessedLetterObjects[wordNumber].push(obj);
+                lineDiv.appendChild(obj);
+            }
+            this._usedHTMLObjects.guesses.appendChild(lineDiv);
         }
-        pressn++;
-        document.getElementById(current).firstElementChild.innerHTML=rand[0];
-        return; // move down
-      }
 
-      // check for correctness
-      for(var i=0; i<childDivs.length; i++) {
-        childDivs[i].innerHTML = guess[i];
-        
-        // if letter match in right place
-        if(guess[i] == rand[i]){
-          changeClass(childDivs[i], 'default', 'correct');
-          c++;
-        } 
-        // if exists but is in the wrong place
-        else if(rand.indexOf(guess[i])!=-1){
-          if(hasDuplicates === false && childDivs[rand.indexOf(guess[i])].className != "square correct"){
-            changeClass(childDivs[i], 'default', 'wrongplace');
-          } //if
-          // if there are duplicate letters
-          else if(hasDuplicates === true){
-            var ind = getAllIndexes(rand, guess[i]);
-            if (ind.length > 1){
-              for (var j=0; j<ind.length;j++){
-                if(childDivs[ind[j]].className != "square correct" && childDivs[i].className != "square wrongplace"){
-                  changeClass(childDivs[i], 'default', 'wrongplace');
-                } //if
-              } //for
-            } //if
-            else if (childDivs[rand.indexOf(guess[i])].className != "square correct"){
-              changeClass(childDivs[i], 'default', 'wrongplace');
-            } //else if
-          } //else if(hasDuplicates === true)
-        } //else if
-        
-        input.value = ""; // clear input box
-        
-        if(c===5) { // if they have all the correct letters
-          end("je krijgt de volgende letter", "");
-        } //if
-        else if (pressn === 5){ // if they're out of tries
-          end("beurt gaat naar andere kant", "Correct word: " + rand);
-        } //else if
-      } //for (check for correctness loop)
-      pressn++; // inc number of guesses
-    } //if (key = 'enter')
-  } //input 
-} //gameloop
+        // The correctly guessed letters are generated below
+        // this._usedHTMLObjects.correctLetterWord = document.getElementById("correctLetters");
+        // for(var letterNumber = 0; letterNumber < 5; letterNumber++) {
+        //     var obj = document.createElement("p");
+        //     obj.innerHTML = " ";
+        //     obj.className = "block";
+        //     this._usedHTMLObjects.individualCorrectLetterObjects.push(obj);
+        //     this._usedHTMLObjects.correctLetterWord.appendChild(obj);
+        // }
 
-// endgame
-var end = function(msg, smallmsg){
-  document.getElementById('msgBox').innerHTML = msg;
-  document.getElementById('smallMsg').innerHTML = smallmsg;
-  changeClass(button, "visible", "visible");
-  document.getElementById('guess').readOnly = true;
+        this._usedHTMLObjects.input = document.getElementById("inputText");
+        this._usedHTMLObjects.inputButton = document.getElementById("inputButton");
+        this._usedHTMLObjects.timer = document.getElementById("timer");
+
+        // Clear invisible info
+        this.start();
+        this._startTimer();
+    }
+
+    // Public:
+    // Start new game (Reset info, counter, etc)
+    start() {
+        this._word = words[Math.floor(Math.random() * words.length)];
+        this._wordContainsIJ = false;
+
+        for(var i = 0; i < 5; i++) {
+            for(var j = 0; j < 5; j++) {
+                this._usedHTMLObjects.individualGuessedLetterObjects[i][j].innerHTML = "_";
+                this._usedHTMLObjects.individualGuessedLetterObjects[i][j].className = "block"
+            }
+        }
+
+        for(var letterCounter = 0; letterCounter < this._word.length; letterCounter++) {
+            if(this._word.charAt(letterCounter) == "i" && this._word.charAt(letterCounter + 1) == "j") {
+                this._wordContainsIJ = true;
+            }
+        }
+        
+        this._usedHTMLObjects.individualGuessedLetterObjects[0][0].innerHTML = this._word.charAt(0);
+        if(this._word.charAt(0) == "i" && this._word.charAt(1) == j) {
+            this._usedHTMLObjects.individualGuessedLetterObjects[0][0].innerHTML = "ij";
+        }
+        this._usedHTMLObjects.individualGuessedLetterObjects[0][0].classList.add("correct");
+        this._usedHTMLObjects.individualGuessedLetterObjects[0][0].classList.add("locationCorrect");
+
+        this._guessCounter = 0;
+        this._guessedLetters = [];
+        this._hasStarted = true;
+    }
+
+    // Update visible game data, the logic behind the game
+    update(guessedWord) {
+        var guessedWordContainsIJ = false;
+        var guessedWordArray = [];
+
+        if(guessedWord.length > 6) return; // IJ infinite word length exploit removal
+
+        for(var letterCounter = 0; letterCounter < guessedWord.length; letterCounter++) {
+            if(guessedWord.charAt(letterCounter) == "i" && guessedWord.charAt(letterCounter + 1) == "j") {
+                letterCounter++;
+                guessedWordContainsIJ = true;
+                guessedWordArray.push("ij");
+                console.log("Guessed word contains ij");
+            } else {
+                guessedWordArray.push(guessedWord.charAt(letterCounter));
+            }
+        }
+
+        var correct = 0;
+        if(guessedWord.length != 5 && !guessedWordContainsIJ) {
+            console.log("Word error1")
+            this._usedHTMLObjects.input.value = "";
+            this._usedHTMLObjects.inputButton.value = "Word too short/long";
+
+            function localCallBack(gameObj) {
+                gameObj._usedHTMLObjects.inputButton.value = "Submit";
+            }
+            setTimeout(localCallBack, 1000, this);
+        } else if(guessedWord.length == 5 && !guessedWordContainsIJ || guessedWord.length == 6 && guessedWordContainsIJ || guessedWord.length == 5 && guessedWordContainsIJ) {
+            console.log(guessedWord);
+            var placeCounter = 0;
+            for(var letterCounter = 0; letterCounter < guessedWord.length; letterCounter++) {
+                var cont = true;
+                if(this._word.charAt(letterCounter) == "i" && this._word.charAt(letterCounter + 1) == "j" && guessedWord.charAt(letterCounter) == "i" && guessedWord.charAt(letterCounter + 1) == "j") {
+                    this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][placeCounter].classList.add("locationCorrect");
+                    this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][placeCounter].innerHTML = "ij";
+                    letterCounter++;
+                    cont = false;
+                    console.log("New line");
+                    correct += 2;
+                } else if(guessedWord.charAt(letterCounter) == this._word.charAt(letterCounter) && cont) {
+                    this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][placeCounter].classList.add("locationCorrect");
+                    this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][placeCounter].innerHTML = guessedWord.charAt(letterCounter);
+                    correct++;
+                }
+                placeCounter++;
+            }
+            for(var letterCounter = 0; letterCounter < guessedWord.length; letterCounter++) {
+                for(var checkedLetterCounter = 0; checkedLetterCounter < this._word.length; checkedLetterCounter++) {
+                    var doContinue = true;
+                    for(var i = 0; i < this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][checkedLetterCounter].classList.length; i++) {
+                        // console.log(this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][checkedLetterCounter].classList[i]);
+                        if(this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][checkedLetterCounter].classList[i] == "locationCorrect") {
+                            doContinue = false;
+                        }
+                    }
+                    if(doContinue) {
+                        if(guessedWord.charAt(letterCounter) == this._word.charAt(checkedLetterCounter)) {
+                            this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][letterCounter].classList.add("correct");
+                        }
+                        this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][letterCounter].innerHTML = guessedWord.charAt(letterCounter);
+                    }
+                }
+            }
+
+            this._guessCounter++;
+            time = this._timerTime;
+        }
+        this._usedHTMLObjects.input.value = "";
+
+        if(correct == this._word.length) {
+            alert("WIN");
+            this._win();
+        }
+    }
+    
+    // private:
+    _word = [];
+    _wordContainsIJ = false;
+    _guessCounter = 0;
+    _guessedLetters = [];
+    _hasStarted = false;
+    _timerTime = 100;
+    _timerInterval = null;
+
+    _usedHTMLObjects = {
+        input: null,
+        inputButton: null,
+        individualGuessedWordObjects: [],
+        individualGuessedLetterObjects: [],
+        correctLetterWord: null,
+        timer: null,
+        // individualCorrectLetterObjects: [],
+    }
+
+    _win() {
+        this.start();
+    }
+    _lose() {
+        alert("LOSE");
+        this.start();
+    }
+    _startTimer() {
+        time = this._timerTime;
+        this._usedHTMLObjects.timer.innerHTML = time;
+        this._timerInterval = setInterval(function() {
+            game._usedHTMLObjects.timer.innerHTML = `${time / 10}`;
+            game.check();
+            time--;
+        }, 100);
+    }
+    check() {
+        if(time <= 0) {
+            time = this._timerTime;
+            this._guessCounter++;
+        }
+        
+        if(this._guessCounter == 5) {
+            this._lose();
+        }
+    }
+
+
+    _checkLetterWithWord(letter, iteration) {
+        var correct = 0;
+        for(var checkedLetterCount = 0; checkedLetterCount < this._word.length; checkedLetterCount++) {
+            if(this._word.charAt(checkedLetterCount) == "i" && this._word.charAt(checkedLetterCount + 1) == "j") {
+                if(letter == "ij") {
+                    this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][iteration].classList.add("correct");
+                    if(checkedLetterCount == iteration) {
+                        this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][iteration].classList.add("locationCorrect");
+                        correct++;
+                    }
+                }
+            } else if(letter == this._word.charAt(checkedLetterCount)) {
+                this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][iteration].classList.add("correct");
+                if(checkedLetterCount == iteration) {
+                    this._usedHTMLObjects.individualGuessedLetterObjects[this._guessCounter][iteration].classList.add("locationCorrect");
+                    correct++;
+                }
+            }
+        }
+        if(correct == 1) return true;
+        return false;
+    }
 }
-
-// reset
-var playagain = function(){
-  document.getElementById('msgBox').innerHTML="Guess the Word!"; // main message
-  document.getElementById('smallMsg').innerHTML = "Green = correct letter, Yellow = wrong place"; // small message
-  document.getElementById('guess').readOnly = false;
-  changeClass(button, "visible", "visible");
-  
-  // clean boxes
-  for(var i=1;i<6;i++){
-    var resets = document.getElementById('row'+i).getElementsByTagName('div');
-    for(var j=0;j<5;j++){
-      resets[j].innerHTML="";
-      if(resets[j].className == "square correct" || resets[j].className == "square wrongplace"){
-        changeClass(resets[j], "correct", "default");
-        changeClass(resets[j], "wrongplace", "default");
-      } //if
-    } //for
-  } //for
-  // restart the loop
-  gameloop();
-};
-
-// start loop
-gameloop();
-
